@@ -2,6 +2,12 @@ import React, { useRef, useState, useEffect } from "react";
 import firebase from "../../../Database/firebase";
 import Alert from "@material-ui/lab/Alert";
 import Collapse from "@material-ui/core/Collapse";
+import "date-fns";
+import DateFnsUtils from "@date-io/date-fns";
+import {
+  MuiPickersUtilsProvider,
+  KeyboardDatePicker,
+} from "@material-ui/pickers";
 
 function UserInfo({ handleClose, userInfo, setuserInfo, fetchUserList }) {
   const [Add_or_Update, setAdd_or_Update] = useState("Add user");
@@ -17,6 +23,12 @@ function UserInfo({ handleClose, userInfo, setuserInfo, fetchUserList }) {
   const [error, setError] = useState();
   const [showAlert, setShowAlert] = useState(false);
   const [severity, setSeverity] = useState("info");
+
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+  };
 
   const handleSave = () => {
     if (
@@ -44,7 +56,7 @@ function UserInfo({ handleClose, userInfo, setuserInfo, fetchUserList }) {
           password: passwordRef.current.value,
           firstname: firstnameRef.current.value,
           lastname: lastnameRef.current.value,
-          birthday: birthdayRef.current.value,
+          birthday: selectedDate
         });
 
         setuserInfo(null);
@@ -67,18 +79,29 @@ function UserInfo({ handleClose, userInfo, setuserInfo, fetchUserList }) {
   const UpdateUser = async () => {
     try {
       setLoading(true);
+      if (
+        usernameRef.current.value !== "" &&
+        passwordRef.current.value !== "" &&
+        passwordRef.current.value === confirmpasswordRef.current.value
+      ) {
 
-      await firebase.firestore().collection("users").doc(userInfo.id).set({
-        username: usernameRef.current.value,
-        email: emailRef.current.value,
-        password: passwordRef.current.value,
-        firstname: firstnameRef.current.value,
-        lastname: lastnameRef.current.value,
-        birthday: birthdayRef.current.value,
-      });
-      setuserInfo(null);
-      fetchUserList();
-      handleClose();
+        await firebase.firestore().collection("users").doc(userInfo.id).set({
+          username: usernameRef.current.value,
+          email: emailRef.current.value,
+          password: passwordRef.current.value,
+          firstname: firstnameRef.current.value,
+          lastname: lastnameRef.current.value,
+          birthday: selectedDate
+        });
+
+        setuserInfo(null);
+        fetchUserList();
+        handleClose();
+      } else {
+        setError("Username is null or Password do not match");
+        setSeverity("warning");
+        setShowAlert(true);
+      }
     } catch (error) {
       setError(`Error : Cannot register ${error}`);
       setSeverity("error");
@@ -99,7 +122,8 @@ function UserInfo({ handleClose, userInfo, setuserInfo, fetchUserList }) {
       emailRef.current.value = data.data().email;
       firstnameRef.current.value = data.data().firstname;
       lastnameRef.current.value = data.data().lastname;
-      birthdayRef.current.value = data.data().birthday;
+      // birthdayRef.current.value = data.data().birthday;
+      setSelectedDate(data.data().birthday);
     } catch (error) {
       setError(`Error : Cannot get user from db ${error}`);
       setSeverity("error");
@@ -180,12 +204,19 @@ function UserInfo({ handleClose, userInfo, setuserInfo, fetchUserList }) {
             ref={lastnameRef}
           />
           <label htmlFor="txtBirthday">Birthday</label>
-          <input
-            id="txtBirthday"
-            className="textbox"
-            type="text"
-            ref={birthdayRef}
-          />
+          <MuiPickersUtilsProvider utils={DateFnsUtils}>
+            <KeyboardDatePicker
+              margin="normal"
+              id="txtBirthday"
+              ref={birthdayRef}
+              format="dd/MM/yyyy"
+              value={selectedDate}
+              onChange={handleDateChange}
+              KeyboardButtonProps={{
+                "aria-label": "change date",
+              }}
+            />
+          </MuiPickersUtilsProvider>
         </div>
         <div className="flex m-1">
           <button

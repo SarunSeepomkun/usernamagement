@@ -108,7 +108,7 @@ function UserList() {
                 <TableCell align="right">{row.firstname}</TableCell>
                 <TableCell align="right">{row.lastname}</TableCell>
                 <TableCell align="right">{row.email}</TableCell>
-                <TableCell align="center">{row.birthday}</TableCell>
+                <TableCell align="center">{(new Date(row.birthday)).toString()}</TableCell>
                 <TableCell align="center">{row.created_date}</TableCell>
                 <TableCell align="center">
                   <button
