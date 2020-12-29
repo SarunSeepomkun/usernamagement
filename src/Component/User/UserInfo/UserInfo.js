@@ -56,7 +56,7 @@ function UserInfo({ handleClose, userInfo, setuserInfo, fetchUserList }) {
           password: passwordRef.current.value,
           firstname: firstnameRef.current.value,
           lastname: lastnameRef.current.value,
-          birthday: selectedDate
+          birthday: selectedDate,
         });
 
         setuserInfo(null);
@@ -84,14 +84,13 @@ function UserInfo({ handleClose, userInfo, setuserInfo, fetchUserList }) {
         passwordRef.current.value !== "" &&
         passwordRef.current.value === confirmpasswordRef.current.value
       ) {
-
         await firebase.firestore().collection("users").doc(userInfo.id).set({
           username: usernameRef.current.value,
           email: emailRef.current.value,
           password: passwordRef.current.value,
           firstname: firstnameRef.current.value,
           lastname: lastnameRef.current.value,
-          birthday: selectedDate
+          birthday: selectedDate,
         });
 
         setuserInfo(null);
@@ -117,8 +116,8 @@ function UserInfo({ handleClose, userInfo, setuserInfo, fetchUserList }) {
       const data = await db.collection("users").doc(userInfo.id).get();
       //setUserInfo(data.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
       usernameRef.current.value = data.data().username;
-      passwordRef.current.value = data.data().passwordRef;
-      confirmpasswordRef.current.value = data.data().passwordRef;
+      passwordRef.current.value = data.data().password;
+      confirmpasswordRef.current.value = data.data().password;
       emailRef.current.value = data.data().email;
       firstnameRef.current.value = data.data().firstname;
       lastnameRef.current.value = data.data().lastname;
