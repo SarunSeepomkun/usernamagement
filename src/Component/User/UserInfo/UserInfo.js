@@ -3,6 +3,7 @@ import firebase from "../../../Database/firebase";
 import Alert from "@material-ui/lab/Alert";
 import Collapse from "@material-ui/core/Collapse";
 import "date-fns";
+import {format , parse} from "date-fns";
 import DateFnsUtils from "@date-io/date-fns";
 import {
   MuiPickersUtilsProvider,
@@ -19,11 +20,11 @@ function UserInfo({ handleClose, userInfo, setuserInfo, fetchUserList }) {
   const firstnameRef = useRef();
   const lastnameRef = useRef();
   const birthdayRef = useRef();
+  const [created_date , setCreated_date ] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState();
   const [showAlert, setShowAlert] = useState(false);
   const [severity, setSeverity] = useState("info");
-
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   const handleDateChange = (date) => {
@@ -56,7 +57,9 @@ function UserInfo({ handleClose, userInfo, setuserInfo, fetchUserList }) {
           password: passwordRef.current.value,
           firstname: firstnameRef.current.value,
           lastname: lastnameRef.current.value,
-          birthday: selectedDate,
+          birthday: format(selectedDate,'dd/MM/yyyy'),
+          created_date : firebase.firestore.FieldValue.serverTimestamp("th-TH"),
+          updated_date : ""
         });
 
         setuserInfo(null);
@@ -90,7 +93,9 @@ function UserInfo({ handleClose, userInfo, setuserInfo, fetchUserList }) {
           password: passwordRef.current.value,
           firstname: firstnameRef.current.value,
           lastname: lastnameRef.current.value,
-          birthday: selectedDate,
+          birthday: format(selectedDate,'dd/MM/yyyy'),
+          created_date : created_date,
+          updated_date : firebase.firestore.FieldValue.serverTimestamp("th-TH")
         });
 
         setuserInfo(null);
@@ -121,8 +126,9 @@ function UserInfo({ handleClose, userInfo, setuserInfo, fetchUserList }) {
       emailRef.current.value = data.data().email;
       firstnameRef.current.value = data.data().firstname;
       lastnameRef.current.value = data.data().lastname;
-      // birthdayRef.current.value = data.data().birthday;
-      setSelectedDate(data.data().birthday);
+      setCreated_date(data.data().created_date);
+      setSelectedDate(parse(data.data().birthday, 'dd/MM/yyyy', new Date()));
+      
     } catch (error) {
       setError(`Error : Cannot get user from db ${error}`);
       setSeverity("error");

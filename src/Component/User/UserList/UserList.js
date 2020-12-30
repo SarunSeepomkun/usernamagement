@@ -17,6 +17,7 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 // import DialogTitle from "@material-ui/core/DialogTitle";
 import UserInfo from "../UserInfo/UserInfo";
+import { format } from 'date-fns'
 
 const useStyles = makeStyles({
   table: {
@@ -62,14 +63,20 @@ function UserList() {
 
   const handleDelete = async () => {
     try {
-      if (typeof userInfo !== "undefined" && userInfo !== null && userInfo !== "") {
-        await firebase.firestore().collection("users").doc(userInfo.id).delete();
+      if (
+        typeof userInfo !== "undefined" &&
+        userInfo !== null &&
+        userInfo !== ""
+      ) {
+        await firebase
+          .firestore()
+          .collection("users")
+          .doc(userInfo.id)
+          .delete();
         deleteDialogClose();
         fetchUserList();
-      } 
-    } catch (error) {
-
-    }
+      }
+    } catch (error) {}
   };
 
   const deleteDialogOpen = (data) => {
@@ -83,7 +90,7 @@ function UserList() {
   };
 
   return (
-    <div style={{ width: "80vw" }}>
+    <div className="container">
       UserList Page Hello
       <button id="btnadduser" className="button" onClick={handleCreate}>
         Add new User
@@ -97,7 +104,8 @@ function UserList() {
               <TableCell align="center">Lastname</TableCell>
               <TableCell align="center">Email</TableCell>
               <TableCell align="center">Birthday</TableCell>
-              <TableCell align="center">Registered date</TableCell>
+              <TableCell align="center">Created date</TableCell>
+              <TableCell align="center">Updated date</TableCell>
               <TableCell align="center">Action</TableCell>
             </TableRow>
           </TableHead>
@@ -108,8 +116,15 @@ function UserList() {
                 <TableCell align="right">{row.firstname}</TableCell>
                 <TableCell align="right">{row.lastname}</TableCell>
                 <TableCell align="right">{row.email}</TableCell>
-                <TableCell align="center">{(new Date(row.birthday)).toString()}</TableCell>
-                <TableCell align="center">{row.created_date}</TableCell>
+                <TableCell align="center">
+                  {(typeof row.birthday === 'undefined' || row.birthday === null || row.birthday === "") ? "" : row.birthday }
+                </TableCell>
+                <TableCell align="center">
+                  {(typeof row.created_date === 'undefined' ||row.created_date === null || row.created_date === "") ? "" : format(row.created_date.toDate(),'dd/MM/yyyy HH:mm:ss') }
+                </TableCell>
+                <TableCell align="center">
+                  {(typeof row.updated_date === 'undefined' ||row.updated_date === null || row.updated_date === "") ? "" : format(row.updated_date.toDate(),'dd/MM/yyyy HH:mm:ss') }
+                </TableCell>
                 <TableCell align="center">
                   <button
                     id={index}
@@ -134,12 +149,12 @@ function UserList() {
         </Table>
       </TableContainer>
       <Modal open={openModal} onClose={handleClose}>
-          <UserInfo
-            userInfo={userInfo}
-            setuserInfo={setuserInfo}
-            handleClose={handleClose}
-            fetchUserList={fetchUserList}
-          />
+        <UserInfo
+          userInfo={userInfo}
+          setuserInfo={setuserInfo}
+          handleClose={handleClose}
+          fetchUserList={fetchUserList}
+        />
       </Modal>
       <Dialog open={deleteDialog} onClose={deleteDialogClose}>
         <DialogContent>
